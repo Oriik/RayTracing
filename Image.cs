@@ -25,7 +25,7 @@ namespace SyntheseImage
             b = new int[width, height];
 
             for (int j = 0; j < height; j++)
-                for (int i = 0; i < width; i++)                
+                for (int i = 0; i < width; i++)
                 {
                     r[i, j] = 240;
                     g[i, j] = 240;
@@ -103,15 +103,15 @@ namespace SyntheseImage
             writer.Write("255" + "\n");
 
             for (int y = 0; y < height; y++)
+            {
+                string line = "";
                 for (int x = 0; x < width; x++)
                 {
-                    writer.Write(r[x, y]);
-                    writer.Write(" ");
-                    writer.Write(g[x, y]);
-                    writer.Write(" ");
-                    writer.Write(b[x, y]);
-                    writer.Write(" ");
+                    line += r[x,y] + " " + g[x,y] + " " + b[x,y]+ " ";
+
                 }
+                writer.WriteLine(line);
+            }
             writer.Close();
 
 

@@ -10,19 +10,20 @@ namespace SyntheseImage
             Console.WriteLine("Working ...");
 
             Camera camera = new Camera(new Vector3(0, 0, 0), 1280, 720, new Vector3(0, 0, 1), 1000);
-            Light light = new Light(new Vector3(640, 360, 500), new Vector3(1000000, 1000000, 1000000));
+            Light light = new Light(new Vector3(700, 200, 200), new Vector3(1000000, 1000000, 1000000));
 
-            Sphere temp = new Sphere(new Vector3(640, 360, 500), 10, new Couleur(new Vector3(1f, 0.8f, 1f)));
+            Sphere s1 = new Sphere(new Vector3(800, 500, 800), 100, new Couleur(new Vector3(1f, 0.8f, 1f)));
+            Sphere s2 = new Sphere(new Vector3(200, 200, 300), 100, new Couleur(new Vector3(1f, 0.8f, 1f)));
 
             Scene scene = new Scene(camera, light);
-            Sphere leftWall = new Sphere(new Vector3((float)-1e5, 360, 500), (float)1e5, new Couleur(new Vector3(0.2f, 0.8f, 0.2f))); //VERT
-            Sphere rightWall = new Sphere(new Vector3((float)1e5 + 1280, 360, 500), (float)1e5, new Couleur(new Vector3(0.2f, 0.8f, 1))); //BLEU
-            Sphere topWall = new Sphere(new Vector3(640, (float)-1e5, 500), (float)1e5, new Couleur(new Vector3(1f, 0.8f, 1f))); //ROSE
-            Sphere bottomWall = new Sphere(new Vector3(640, (float)1e5+720 , 500), (float)1e5, new Couleur(new Vector3(1, 0.2f, 0.2f))); //ROUGE
-            Sphere backWall = new Sphere(new Vector3(640, 360, (float)1e5 + 1000), (float)1e5, new Couleur(new Vector3(0.5f, 0.5f, 0.5f))); //GRIS
+            Sphere leftWall = new Sphere(new Vector3((float)-1e5-100, 360, 500), (float)1e5, new Couleur(new Vector3(0.2f, 0.8f, 0.2f))); //VERT
+            Sphere rightWall = new Sphere(new Vector3((float)1e5 + 1380, 360, 500), (float)1e5, new Couleur(new Vector3(0.2f, 0.8f, 1))); //BLEU
+            Sphere topWall = new Sphere(new Vector3(640, (float)-1e5-100, 500), (float)1e5, new Couleur(new Vector3(1f, 0.8f, 1f))); //ROSE
+            Sphere bottomWall = new Sphere(new Vector3(640, (float)1e5+820 , 500), (float)1e5, new Couleur(new Vector3(1, 0.2f, 0.2f))); //ROUGE
+            Sphere backWall = new Sphere(new Vector3(640, 360, (float)1e5  +1100), (float)1e5, new Couleur(new Vector3(0.5f, 0.5f, 0.5f))); //GRIS
             Sphere frontWall = new Sphere(new Vector3(640, 360, (float)-1e5 -1), (float)1e5, new Couleur(new Vector3(1, 1, 1))); // BLANC
 
-            Sphere[] spheres = { frontWall, backWall, rightWall, leftWall, bottomWall, topWall, temp};
+            Sphere[] spheres = { frontWall, backWall, rightWall, leftWall, bottomWall, topWall, s1,s2};
             scene.spheres.AddRange(spheres);
             
 
