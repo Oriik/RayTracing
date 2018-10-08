@@ -1,0 +1,6 @@
+C:\Users\guquiniou\Documents\GitHub\SyntheseImage\bin\Release\SyntheseImage.exe.config
+C:\Users\guquiniou\Documents\GitHub\SyntheseImage\bin\Release\SyntheseImage.exe
+C:\Users\guquiniou\Documents\GitHub\SyntheseImage\bin\Release\SyntheseImage.pdb
+C:\Users\guquiniou\Documents\GitHub\SyntheseImage\obj\Release\SyntheseImage.csproj.CoreCompileInputs.cache
+C:\Users\guquiniou\Documents\GitHub\SyntheseImage\obj\Release\SyntheseImage.exe
+C:\Users\guquiniou\Documents\GitHub\SyntheseImage\obj\Release\SyntheseImage.pdb

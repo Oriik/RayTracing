@@ -8,13 +8,13 @@ namespace SyntheseImage
 
         public float radius;
 
-        public Couleur couleur;
+        public Material material;
 
-        public Sphere(Vector3 _p, float _radius, Couleur _couleur)
+        public Sphere(Vector3 _p, float _radius, Material _material)
         {
             center = _p;
             radius = _radius;
-            couleur = _couleur;
+            material = _material;
         }
     }
 }

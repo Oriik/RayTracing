@@ -41,5 +41,10 @@ namespace SyntheseImage
 
 
         }
+
+        public Vector3 GetPointAt(float coeff)
+        {
+            return Vector3.Add(o, Vector3.Multiply(coeff,d));
+        }
     }
 }
