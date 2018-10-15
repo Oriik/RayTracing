@@ -24,18 +24,19 @@ namespace SyntheseImage
         public Image DrawImg()
         {
             Image img = new Image(cam.width, cam.height, "toto3D");
+            int nbRayonPerPixels = 100;
 
             for (int y = 0; y < cam.height; y++)
                 for (int x = 0; x < cam.width; x++)
                 {
                     Vector3 pointOnCam = new Vector3(cam.o.X + x, cam.o.Y + y, cam.o.Z);
                      Vector3 pixelColor = new Vector3(0,0,0);
-                     for (int i =0; i < 50; i++)
+                     for (int i =0; i < nbRayonPerPixels; i++)
                      {
                          Rayon rFromCam = new Rayon(pointOnCam, cam.GetFocusAngle(x, y));
                         pixelColor = Vector3.Add(pixelColor,SendRayon(rFromCam));
                      }
-                     pixelColor = Vector3.Divide(pixelColor, 50);
+                     pixelColor = Vector3.Divide(pixelColor, nbRayonPerPixels);
                    
                     img.SetPixel(x, y, pixelColor.X, pixelColor.Y, pixelColor.Z);
 
@@ -58,18 +59,14 @@ namespace SyntheseImage
                 //On calcule le vecteur centreSphere->pointSphere et on le normalise
                 Vector3 directionTemp = Vector3.Normalize(Vector3.Subtract(pointOnSphere, res.sphere.center));
 
-                Vector3 pointOnSphereDecal = Vector3.Add(pointOnSphere, Vector3.Multiply(directionTemp, 0.1f));
+                Vector3 pointOnSphereDecal = Vector3.Add(pointOnSphere, Vector3.Multiply(directionTemp, 0.5f));
 
                 Vector3 indirectLight = new Vector3(0, 0, 0);
 
-                Vector3 l = Vector3.Subtract(light.origine, pointOnSphereDecal);
-                float dist = l.Length();
-                l = Vector3.Normalize(l);
-                Vector3 n = Vector3.Subtract(pointOnSphereDecal, res.sphere.center);
-                n = Vector3.Normalize(n);
-                Vector3 lightEmmited = Vector3.Divide(Vector3.Multiply(res.sphere.material.albedo, Math.Max(Math.Min(Math.Abs(Vector3.Dot(n, l)), 1.0f), 0.0f)), (float)Math.PI);
+               
 
-                if (cpt < 10)
+                
+                if (cpt < 20)
                 {
                     Vector3 newDir;
                     float coef;
@@ -80,36 +77,51 @@ namespace SyntheseImage
                         Vector3 normal = Vector3.Subtract(pointOnSphereDecal, res.sphere.center);
                         normal = Vector3.Normalize(normal);
                         newDir = Vector3.Add(Vector3.Multiply(2 * -Vector3.Dot(rFromCam.d, normal), normal), rFromCam.d);
+                        indirectLight = res.sphere.material.albedo * IndirectLightning(pointOnSphereDecal, newDir, res, cpt);
                     }
                     else
                     {
+                        Vector3 n = Vector3.Subtract(pointOnSphereDecal, res.sphere.center);
+                        n = Vector3.Normalize(n);
+
                         //On génère un rebond aléatoire
-                        coef = 4* 3.14f;
+                        //coef = 2 * 3.14f;
                         double r1 = random.NextDouble();
                         double r2 = random.NextDouble();
-                        float x = (float)(pointOnSphereDecal.X + 2 * Math.Cos(2 * Math.PI * r1)*Math.Sqrt(r2*(1-r2)));
-                        float y = (float)(pointOnSphereDecal.Y + 2 * Math.Sin(2 * Math.PI * r1) * Math.Sqrt(r2 * (1 - r2)));
-                        float z = (float)(pointOnSphereDecal.Z + (1 - 2 * r2));
+                        //On créé une direction aléatoire
+                        float X = (float) (Math.Cos(2 * Math.PI * r1) * Math.Sqrt(1 - r2));
+                        float Y = (float) (Math.Sin(2*Math.PI * r1)*Math.Sqrt(1-r2));
+                        float Z =(float) Math.Sqrt(r2);
 
-                        newDir = Vector3.Subtract(new Vector3(x, y, z), pointOnSphereDecal); 
-                        if(Vector3.Dot(newDir, Vector3.Subtract(pointOnSphereDecal, res.sphere.center)) < 0)
-                        {
-                            newDir = Vector3.Negate(newDir);
-                        }
-                        
+                        Vector3 randomVector = new Vector3((float)random.NextDouble(), (float)random.NextDouble(), (float)random.NextDouble());
+
+                        Vector3 xBase = Vector3.Normalize(Vector3.Cross(n, randomVector));
+                        Vector3 yBase = Vector3.Cross(xBase, n);
+                        Vector3 zBase = n;
+
+                         newDir = Vector3.Add(Vector3.Add(X * xBase, Y * yBase), Z * zBase);
+
+                        //float lightEmmited = Math.Max(Math.Min(Vector3.Dot(n, newDir), 1.0f), 0.0f) / (float)Math.PI;
+                        indirectLight = /* lightEmmited * coef * */ IndirectLightning(pointOnSphereDecal, newDir, res, cpt);
+
                     }
 
-                    indirectLight = lightEmmited *coef * IndirectLightning(pointOnSphereDecal, newDir, res, cpt);
+                  
 
                 }
 
                 if (res.sphere.material.mat != Materials.Mirror)
                 {
-                   
+                    Vector3 l = Vector3.Subtract(light.origine, pointOnSphereDecal);
+                    float dist = l.Length();
+                    l = Vector3.Normalize(l);
+                    Vector3 n = Vector3.Subtract(pointOnSphereDecal, res.sphere.center);
+                    n = Vector3.Normalize(n);
 
+                    Vector3 lightEmmited = Vector3.Divide(Vector3.Multiply(res.sphere.material.albedo, Math.Max(Math.Min(Vector3.Dot(n, l), 1.0f), 0.0f)), (float)Math.PI);
                     Vector3 directLight = DirectLightning(pointOnSphereDecal, res, dist);                    
 
-                    return Vector3.Multiply(lightEmmited, Vector3.Add(directLight, indirectLight));
+                    return Vector3.Add(Vector3.Multiply(lightEmmited,directLight), indirectLight);
                 }
                 else
                 {
