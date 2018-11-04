@@ -6,6 +6,8 @@ namespace SyntheseImage
 {
     public class Image
     {
+        // The output file after ray tracing operate
+
 
         public int height;
         public int width;
@@ -32,28 +34,14 @@ namespace SyntheseImage
                     b[i, j] = 240;
                 }
         }
-
-        public void drawASphere(Sphere sphere)
-        {
-
-            for (int i = 0; i < height; i++)
-                for (int j = 0; j < width; j++)
-                {
-
-                    if (Math.Pow(i - sphere.center.X, 2) + Math.Pow(j - sphere.center.Y, 2) < Math.Pow(sphere.radius, 2))
-                    {
-                        SetPixel(i, j, 255, 13, 13);
-                    }
-                }
-        }
-
+        
         public void drawARayon(Rayon rayon)
         {
 
             //BRESENHAM
-            int x0 = (int)rayon.o.X;
-            int y0 = (int)rayon.o.Y;
-            Vector3 end = Vector3.Add(rayon.o, rayon.d);
+            int x0 = (int)rayon.origine.X;
+            int y0 = (int)rayon.origine.Y;
+            Vector3 end = Vector3.Add(rayon.origine, rayon.direction);
             int x1 = (int)end.X;
             int y1 = (int)end.Y;
             int dx = Math.Abs(x1 - x0),
@@ -73,18 +61,7 @@ namespace SyntheseImage
 
         }
 
-        public void DrawIntersect(Rayon rayon, Sphere sphere)
-        {
-            float x = rayon.IntersectASphere(sphere);
-            if (x != -1)
-            {
-                Vector3 i = Vector3.Add(rayon.o, Vector3.Multiply(x, rayon.d));
-
-                SetPixel((int)i.X, (int)i.Y, 255, 255, 255);
-
-            }
-
-        }
+        
 
         public void SetPixel(int x, int y, float r, float g, float b)
         {
