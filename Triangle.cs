@@ -10,7 +10,7 @@ namespace SyntheseImage
         public Vector3 u, v;
         public Vector3 uPerp, vPerp;
         public float denominatorST;
-        
+
         public Triangle(Vector3 _a, Vector3 _b, Vector3 _c, Material _material)
         {
             material = _material;
@@ -21,7 +21,7 @@ namespace SyntheseImage
             u = b - a;
             v = c - a;
 
-            normal = - Vector3.Normalize(Vector3.Cross(u, v));
+            normal = -Vector3.Normalize(Vector3.Cross(u, v));
 
         }
 
@@ -29,13 +29,18 @@ namespace SyntheseImage
         {
             return normal;
         }
-        
+
         public void Translate(Vector3 translation)
         {
             a = a + translation;
             b = b + translation;
             c = c + translation;
+
+            u = b - a;
+            v = c - a;
+
+            normal = -Vector3.Normalize(Vector3.Cross(u, v));
         }
-    
+
     }
 }

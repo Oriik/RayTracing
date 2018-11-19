@@ -51,7 +51,7 @@ namespace SyntheseImage
                     Vector3 c = new Vector3(float.Parse(t[1].Replace('.', ',')), float.Parse(t[3].Replace('.', ',')), float.Parse(t[2].Replace('.', ',')));
                     Triangle temp = new Triangle(a, b, c, new Material(Materials.Difuse, Material.Blue));
                     temp.Translate(translation);
-                    
+                    Console.WriteLine(temp.a);
                     scene.shapes.Add(temp);
                     i += 3;
 
