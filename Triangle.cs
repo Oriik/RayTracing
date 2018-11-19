@@ -25,6 +25,22 @@ namespace SyntheseImage
 
         }
 
+        public override Box GetBoundingBox()
+        {
+            Vector3 pMin, pMax;
+            pMin = a;
+            if (b.X < pMin.X) pMin.X = b.X;
+            if (b.Y < pMin.Y) pMin.Y = b.Y;
+            if (b.Z < pMin.Z) pMin.Z = b.Z;
+
+            pMax = a;
+            if (b.X > pMax.X) pMax.X = b.X;
+            if (b.Y > pMax.Y) pMax.Y = b.Y;
+            if (b.Z > pMax.Z) pMax.Z = b.Z;
+            Box box = new Box(pMin, pMax);
+            return box;
+        }
+
         public override Vector3 GetNormal(Vector3 point)
         {
             return normal;

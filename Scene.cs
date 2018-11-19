@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 
 namespace SyntheseImage
@@ -7,6 +8,9 @@ namespace SyntheseImage
     public class Scene
     {
         public List<Shape> shapes;
+
+        public List<Shape> walls;
+        private Tree tree;
         public Camera cam;
         public Light light;
         private Random random;
@@ -17,6 +21,7 @@ namespace SyntheseImage
             cam = _cam;
             light = _light;
             shapes = new List<Shape>();
+            walls = new List<Shape>();
             random = new Random();
 
         }
@@ -25,8 +30,14 @@ namespace SyntheseImage
         {
             Image img = new Image(cam.width, cam.height, "toto3D");
 
+            tree = CreateTree(shapes);
+            Console.WriteLine("NB DE SHAPES " + shapes.Count);
+            Console.WriteLine("TREE FINISHED");
 
             for (int y = 0; y < cam.height; y++)
+            {
+                if (y == 50) break;
+            
                 for (int x = 0; x < cam.width; x++)
                 {
                     Vector3 pointOnCam = new Vector3(cam.origine.X + x, cam.origine.Y + y, cam.origine.Z);
@@ -39,20 +50,40 @@ namespace SyntheseImage
                     pixelColor = Vector3.Divide(pixelColor, nbRayonPerPixels);
 
                     img.SetPixel(x, y, pixelColor.X, pixelColor.Y, pixelColor.Z);
-
+                   
                 }
+            }
+
 
             return img;
         }
 
-        private Vector3 SendRayon(Rayon rFromCam, int cpt = 0)
+        private Tree CreateTree(List<Shape> elements)
         {
+            if (elements.Count == 1) return new Tree(elements[0]);
+            else
+            {
+                Box b = elements[0].GetBoundingBox();
+                for (int i = 1; i < elements.Count; i++)
+                {
+                    b = b.Fusion(elements[i].GetBoundingBox());
+                }
+                elements = elements.OrderBy(s => s.GetBoundingBox().pMin.X).ToList();
 
+                List<Shape> leftElements = elements.GetRange(0, elements.Count / 2);
+                List<Shape> rightElements = elements.GetRange(elements.Count/2, elements.Count / 2);
+
+                return new Tree(b, CreateTree(leftElements), CreateTree(rightElements));                
+            }
+        }
+
+        private Vector3 SendRayon(Rayon rFromCam, int cpt = 0)
+        {            
             ResFindShape res = SearchShapeHit(rFromCam);
 
             //Si on a rencontré une forme
-            if (res.coeff != float.MaxValue)
-            {
+            if (res.coeff != float.MaxValue && res.shape != null)
+            {               
                 cpt++;
                 Vector3 pointOnShape = rFromCam.GetPointAt(res.coeff);
                 //On décale i un tout petit peu vers l'extérieur de la forme pour être sur de pas être dans la forme.
@@ -67,7 +98,6 @@ namespace SyntheseImage
                 {
                     Vector3 newDir;
                    
-
                     if (res.shape.material.mat == Materials.Mirror)
                     {
                         
@@ -83,7 +113,7 @@ namespace SyntheseImage
                         //On génère un rebond aléatoire
                         newDir = RandomBounce(res, pointOnShapeDecal);
 
-                        indirectLight = IndirectLightning(pointOnShapeDecal, newDir, res, cpt);
+                       // indirectLight = IndirectLightning(pointOnShapeDecal, newDir, res, cpt);
 
                     }
                 }
@@ -174,13 +204,23 @@ namespace SyntheseImage
         {
             ResFindShape res = new ResFindShape();
             res.coeff = float.MaxValue;
+            List<Shape> allElements = walls;
+            allElements.Add(tree);
 
-            foreach (Shape s in shapes)
+            foreach (Shape s in allElements)
             {
                 float temp = rayon.IntersectAShape(s);
                 if (temp != -1 && temp < res.coeff)
                 {
                     res.coeff = temp;
+                    if(s is Tree)
+                    {
+                        res.shape = null;
+                    }
+                    else
+                    {
+                        res.shape = s;
+                    }
                     res.shape = s;
                 }
             }

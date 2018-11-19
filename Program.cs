@@ -27,13 +27,12 @@ namespace SyntheseImage
             Sphere frontWall = new Sphere(new Vector3(640, 360, (float)-1e5 - 100), (float)1e5,
                 new Material(Materials.Difuse, Material.Green));
 
-            //Shape[] shapes = { frontWall, backWall, rightWall, leftWall, bottomWall, topWall,
-            //    t1, t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,
+            //Shape[] shapes = { t1, t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,
             //tt1,tt2,tt3,tt4,tt5,tt6,tt7,tt8,tt9,tt10,tt11,tt12};
-            Shape[] shapes = { frontWall, backWall, rightWall, leftWall, bottomWall, topWall};
-            scene.shapes.AddRange(shapes);
+            Shape[] walls = { frontWall, backWall, rightWall, leftWall, bottomWall, topWall};
+            scene.walls.AddRange(walls);
 
-            string[] lines = System.IO.File.ReadAllLines(@"C:\Users\guquiniou\Documents\GitHub\SyntheseImage\trex.stl");
+            string[] lines = System.IO.File.ReadAllLines(@"C:\Users\guquiniou\Documents\GitHub\SyntheseImage\test.stl");
 
             char[] paramSplit = new char[1] { ' ' };
             Vector3 translation = new Vector3(800, 300, 400);
@@ -51,10 +50,10 @@ namespace SyntheseImage
                     Vector3 c = new Vector3(float.Parse(t[1].Replace('.', ',')), float.Parse(t[3].Replace('.', ',')), float.Parse(t[2].Replace('.', ',')));
                     Triangle temp = new Triangle(a, b, c, new Material(Materials.Difuse, Material.Blue));
                     temp.Translate(translation);
-                    Console.WriteLine(temp.a);
+                    
                     scene.shapes.Add(temp);
                     i += 3;
-
+                    break;
                 }
             }
 

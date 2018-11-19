@@ -16,19 +16,105 @@ namespace SyntheseImage
 
         }
 
+        public bool IntersectABox(Box box)
+        {
+            // Division pour éviter une multiplication plus tard
+            Double rinvx = 1 / direction.X;
+            Double rinvy = 1 / direction.Y;
+            Double rinvz = 1 / direction.Z;
+
+            // X slab Max box size
+            Double tx1 = (box.pMin.X - origine.X) * rinvx;
+            Double tx2 = (box.pMax.X - origine.X) * rinvx;
+
+            Double tminX = Math.Min(tx1, tx2);
+            Double tmaxX = Math.Max(tx1, tx2);
+
+            // Y slab
+            Double ty1 = (box.pMin.Y - origine.Y) * rinvy;
+            Double ty2 = (box.pMax.Y - origine.Y) * rinvy;
+
+            Double tminY = Math.Max(tminX, (Math.Min(ty1, ty2)));
+            Double tmaxY = Math.Min(tmaxX, (Math.Max(ty1, ty2)));
+
+            // Z slab
+            Double tz1 = (box.pMin.Z - origine.Z) * rinvz;
+            Double tz2 = (box.pMax.Z - origine.Z) * rinvz;
+
+            Double tminZ = Math.Max(tminY, (Math.Min(tz1, tz2)));
+            Double tmaxZ = Math.Min(tmaxY, (Math.Max(tz1, tz2)));
+
+            if (tmaxZ >= tminZ)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+
+
+        }
         public float IntersectAShape(Shape shape)
         {
-            if(shape is Sphere)
+            if (shape is Sphere)
             {
                 return IntersectASphere((Sphere)shape);
             }
-            if(shape is Triangle)
+            if (shape is Triangle)
             {
                 return IntersectATriangle((Triangle)shape);
+            }
+            if (shape is Tree)
+            {
+                return IntersectATree((Tree)shape);               
             }
             return -1.0f;
         }
 
+        private float IntersectATree(Tree tree)
+        {
+            if(IntersectABox(tree.GetBoundingBox()))
+            {
+                if (tree.leaf)
+                {
+                    return IntersectAShape(tree.shape);
+                }
+                else
+                {
+                    float t1 = IntersectAShape(tree.tree1);
+                    float t2 = IntersectAShape(tree.tree2);
+                    if(t1 == -1.0f)
+                    {
+                        if(t2 == -1.0f)
+                        {
+                            return -1.0f;
+                        }
+                        else
+                        {
+                            return t2;
+                        }
+                    }
+                    else
+                    {
+                        if (t2 == -1.0f)
+                        {
+                            return t1;
+                        }
+                        else
+                        {
+                            if (t1 < t2) return t1;
+                            else return t2;
+                        }
+                    }
+
+                }
+            }
+            else
+            {
+                return -1.0f;
+            }
+        }
 
         private float IntersectASphere(Sphere sphere)
         //RETURN -1 IF NO INTERSECT
@@ -55,7 +141,7 @@ namespace SyntheseImage
         }
 
         private float IntersectATriangle(Triangle triangle) //ALGO MOLLER TRUMBORE
-            //RETURN -1 IF NO INTERSECT
+                                                            //RETURN -1 IF NO INTERSECT
         {
             Vector3 h = Vector3.Cross(direction, triangle.v);
             float a = Vector3.Dot(triangle.u, h);
@@ -63,12 +149,12 @@ namespace SyntheseImage
             float f = 1.0f / a;
             Vector3 s = origine - triangle.a;
             float u = f * (Vector3.Dot(s, h));
-            if(u<0 || u>1.0) { return -1.0f; }
+            if (u < 0 || u > 1.0) { return -1.0f; }
             Vector3 q = Vector3.Cross(s, triangle.u);
             float v = f * Vector3.Dot(direction, q);
-            if(v < 0 || u + v > 1) { return -1.0f; }
+            if (v < 0 || u + v > 1) { return -1.0f; }
             float t = f * Vector3.Dot(triangle.v, q);
-            if(t> float.Epsilon)
+            if (t > float.Epsilon)
             {
                 return t;
             }
@@ -77,7 +163,7 @@ namespace SyntheseImage
 
         public Vector3 GetPointAt(float coeff)
         {
-            return Vector3.Add(origine, Vector3.Multiply(coeff,direction));
+            return Vector3.Add(origine, Vector3.Multiply(coeff, direction));
         }
     }
 }
