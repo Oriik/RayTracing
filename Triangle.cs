@@ -29,5 +29,13 @@ namespace SyntheseImage
         {
             return normal;
         }
+        
+        public void Translate(Vector3 translation)
+        {
+            a = a + translation;
+            b = b + translation;
+            c = c + translation;
+        }
+    
     }
 }

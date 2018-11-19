@@ -66,12 +66,11 @@ namespace SyntheseImage
                 if (cpt < 5)
                 {
                     Vector3 newDir;
-                    float coef;
+                   
 
                     if (res.shape.material.mat == Materials.Mirror)
                     {
-                        coef = 1.0f;
-
+                        
                         //On calcule la direction de réflexion
                         newDir = Vector3.Add(
                             Vector3.Multiply(2 * -Vector3.Dot(rFromCam.direction, normalOnPointOnShape), normalOnPointOnShape)
