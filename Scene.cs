@@ -10,6 +10,10 @@ namespace SyntheseImage
         public List<Shape> shapes;
 
         public List<Shape> walls;
+
+        List<Shape> allElements;
+
+
         private Tree tree;
         public Camera cam;
         public Light light;
@@ -31,13 +35,17 @@ namespace SyntheseImage
             Image img = new Image(cam.width, cam.height, "toto3D");
 
             tree = CreateTree(shapes);
+
+            PrintTree(tree);
             Console.WriteLine("NB DE SHAPES " + shapes.Count);
             Console.WriteLine("TREE FINISHED");
 
+            allElements = new List<Shape>(walls);
+            allElements.Add(tree);
+
             for (int y = 0; y < cam.height; y++)
             {
-                if (y == 50) break;
-            
+                
                 for (int x = 0; x < cam.width; x++)
                 {
                     Vector3 pointOnCam = new Vector3(cam.origine.X + x, cam.origine.Y + y, cam.origine.Z);
@@ -50,7 +58,7 @@ namespace SyntheseImage
                     pixelColor = Vector3.Divide(pixelColor, nbRayonPerPixels);
 
                     img.SetPixel(x, y, pixelColor.X, pixelColor.Y, pixelColor.Z);
-                   
+
                 }
             }
 
@@ -71,19 +79,37 @@ namespace SyntheseImage
                 elements = elements.OrderBy(s => s.GetBoundingBox().pMin.X).ToList();
 
                 List<Shape> leftElements = elements.GetRange(0, elements.Count / 2);
-                List<Shape> rightElements = elements.GetRange(elements.Count/2, elements.Count / 2);
+                List<Shape> rightElements;
+                if (elements.Count % 2 == 0)
+                {
+                   rightElements = elements.GetRange(elements.Count / 2, elements.Count / 2);
+                }
+                else
+                {
+                     rightElements = elements.GetRange(elements.Count / 2, (elements.Count / 2)+1);
+                }
+                
 
-                return new Tree(b, CreateTree(leftElements), CreateTree(rightElements));                
+                return new Tree(b, CreateTree(leftElements), CreateTree(rightElements));
             }
         }
-
+        private void PrintTree(Tree t)
+        {
+            if (t.leaf) Console.WriteLine("LEAF :" + t.shape.GetType());
+            else
+            {
+                Console.WriteLine("BRANCHE");
+                PrintTree(t.tree1);
+                PrintTree(t.tree2);
+            }
+        }
         private Vector3 SendRayon(Rayon rFromCam, int cpt = 0)
-        {            
+        {
             ResFindShape res = SearchShapeHit(rFromCam);
 
             //Si on a rencontré une forme
             if (res.coeff != float.MaxValue && res.shape != null)
-            {               
+            {
                 cpt++;
                 Vector3 pointOnShape = rFromCam.GetPointAt(res.coeff);
                 //On décale i un tout petit peu vers l'extérieur de la forme pour être sur de pas être dans la forme.
@@ -97,10 +123,10 @@ namespace SyntheseImage
                 if (cpt < 5)
                 {
                     Vector3 newDir;
-                   
+
                     if (res.shape.material.mat == Materials.Mirror)
                     {
-                        
+
                         //On calcule la direction de réflexion
                         newDir = Vector3.Add(
                             Vector3.Multiply(2 * -Vector3.Dot(rFromCam.direction, normalOnPointOnShape), normalOnPointOnShape)
@@ -113,7 +139,7 @@ namespace SyntheseImage
                         //On génère un rebond aléatoire
                         newDir = RandomBounce(res, pointOnShapeDecal);
 
-                       // indirectLight = IndirectLightning(pointOnShapeDecal, newDir, res, cpt);
+                         //indirectLight = IndirectLightning(pointOnShapeDecal, newDir, res, cpt);
 
                     }
                 }
@@ -144,16 +170,16 @@ namespace SyntheseImage
         {
             //On créé un rayon de la forme jusqu'à la lumière
             Rayon r2 = new Rayon(point, Vector3.Subtract(light.origine, point));
-            bool seeTheLight = true;
+            bool seeTheLight = true;            
             foreach (Shape s in shapes)
             {
-                float coeff = r2.IntersectAShape(s);
+                float coeff = r2.IntersectAShape(s, out res.shape);
 
 
                 //Si on croise une forme avant d'arriver à la lumière
                 if (coeff != -1 && coeff < 1)
                 {
-                    seeTheLight = false;
+                    seeTheLight = false;                    
                     break;
                 }
 
@@ -168,7 +194,8 @@ namespace SyntheseImage
             }
             else
             {
-                return new Vector3(0, 0, 0); //On voit une forme mais elle n'est pas éclairé, on renvoie du noir
+                
+                return new Vector3(0, 0 , 0); //On voit une forme mais elle n'est pas éclairé, on renvoie du noir
             }
         }
 
@@ -204,26 +231,20 @@ namespace SyntheseImage
         {
             ResFindShape res = new ResFindShape();
             res.coeff = float.MaxValue;
-            List<Shape> allElements = walls;
-            allElements.Add(tree);
-
+           
+           
             foreach (Shape s in allElements)
             {
-                float temp = rayon.IntersectAShape(s);
+                Shape tempShape;
+                float temp = rayon.IntersectAShape(s, out tempShape);
+               
                 if (temp != -1 && temp < res.coeff)
                 {
                     res.coeff = temp;
-                    if(s is Tree)
-                    {
-                        res.shape = null;
-                    }
-                    else
-                    {
-                        res.shape = s;
-                    }
-                    res.shape = s;
+                    res.shape = tempShape;
                 }
             }
+           
             return res;
         }
         private struct ResFindShape
