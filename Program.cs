@@ -23,14 +23,14 @@ namespace SyntheseImage
             Sphere topWall = new Sphere(new Vector3(640, (float)-1e5 - 100, 500), (float)1e5,
                 new Material(Materials.Difuse, Material.Pink));
             Sphere bottomWall = new Sphere(new Vector3(640, (float)1e5 + 820, 500), (float)1e5,
-                new Material(Materials.Difuse, Material.Red));
+                new Material(Materials.Difuse, Material.White));
             Sphere backWall = new Sphere(new Vector3(640, 360, (float)1e5 + 1100), (float)1e5,
                 new Material(Materials.Difuse, Material.Yellow));
             Sphere frontWall = new Sphere(new Vector3(640, 360, (float)-1e5 - 100), (float)1e5,
                 new Material(Materials.Difuse, Material.Red));
 
 
-            Shape[] walls = { frontWall, backWall, rightWall, leftWall, bottomWall, topWall };
+            Shape[] walls = { bottomWall };
             scene.walls.AddRange(walls);
 
             // string[] lines = System.IO.File.ReadAllLines(@"C:\Users\Guill\Documents\Gamagora\SyntheseImage\SyntheseImage\trex.stl"); //HOME
@@ -59,7 +59,7 @@ namespace SyntheseImage
 
             //    }
             //}
-            Random random = new Random();
+            Random random = new Random(20);
 
             for (int i = 0; i < 5; i++)
             {
@@ -67,6 +67,7 @@ namespace SyntheseImage
                 scene.shapes.Add(s);
             }
 
+            
 
             Image img3D = scene.DrawImg(5);
             img3D.WritePPM();

@@ -163,7 +163,7 @@ namespace SyntheseImage
             }
         }
 
-        return new Vector3(0, 0, 0); //On ne voit rien, on retourne la couleur du fond de l'image  -- JAMAIS UTILISE CHEZ NOUS CAR SCENE COMPLETEMENT REMPLIE
+        return new Vector3(0.2f,0.1f,0.8f); //On ne voit rien, on retourne la couleur du fond de l'image  --ATMOSPHERE
     }
 
     private Vector3 DirectLightning(Vector3 point, ResFindShape res, float dist)
@@ -208,7 +208,6 @@ namespace SyntheseImage
 
     private Vector3 RandomBounce(ResFindShape res, Vector3 point)
     {
-
         double r1 = random.NextDouble();
         double r2 = random.NextDouble();
         //On créé une direction aléatoire
@@ -223,8 +222,6 @@ namespace SyntheseImage
         Vector3 zBase = point;
 
         return Vector3.Add(Vector3.Add(X * xBase, Y * yBase), Z * zBase);
-
-
     }
 
     private ResFindShape SearchShapeHit(Rayon rayon)
