@@ -23,15 +23,17 @@ namespace SyntheseImage
             Sphere bottomWall = new Sphere(new Vector3(640, (float)1e5 + 820, 500), (float)1e5,
                 new Material(Materials.Difuse, Material.Red));
             Sphere backWall = new Sphere(new Vector3(640, 360, (float)1e5 + 1100), (float)1e5,
-                new Material(Materials.Mirror, Material.White));
+                new Material(Materials.Difuse, Material.Red));
             Sphere frontWall = new Sphere(new Vector3(640, 360, (float)-1e5 - 100), (float)1e5,
-                new Material(Materials.Mirror, Material.White));
+                new Material(Materials.Difuse, Material.Red));
 
 
             Shape[] walls = { frontWall, backWall, rightWall, leftWall, bottomWall, topWall };
             scene.walls.AddRange(walls);
 
-            string[] lines = System.IO.File.ReadAllLines(@"C:\Users\Guill\Documents\Gamagora\SyntheseImage\SyntheseImage\trex.stl");
+            // string[] lines = System.IO.File.ReadAllLines(@"C:\Users\Guill\Documents\Gamagora\SyntheseImage\SyntheseImage\trex.stl"); //HOME
+            string[] lines = System.IO.File.ReadAllLines(@" C:\Users\guquiniou\Documents\GitHub\SyntheseImage\trex.stl"); //FAC
+           
 
             char[] paramSplit = new char[1] { ' ' };
             Vector3 translation = new Vector3(350, 300, 400);
