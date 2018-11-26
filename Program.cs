@@ -13,8 +13,11 @@ namespace SyntheseImage
             Console.WriteLine("Working ...");
 
             Camera camera = new Camera(new Vector3(0, 0, 0), 1280, 720, new Vector3(0, 0, 1), 1000);
-            Light light = new Light(new Vector3(600, 200, 500), new Vector3(1000000, 1000000, 1000000));
-            Scene scene = new Scene(camera, light);
+            Light light1 = new Light(new Vector3(800, 200, 800), new Vector3(50000, 50000, 50000));
+            Light light2 = new Light(new Vector3(200, 250, 500), new Vector3(50000, 50000, 50000));
+            Scene scene = new Scene(camera);
+            Light[] lights = { light1, light2 };
+            scene.lights.AddRange(lights);
 
             Sphere leftWall = new Sphere(new Vector3((float)-1e5 - 100, 360, 500), (float)1e5,
                 new Material(Materials.Difuse, Material.Green));

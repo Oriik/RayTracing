@@ -13,17 +13,17 @@ namespace SyntheseImage
 
         private List<Shape> fastStruct;
 
+        public List<Light> lights;
 
         private Tree tree;
         public Camera cam;
-        public Light light;
         private Random random;
 
 
-        public Scene(Camera _cam, Light _light)
+        public Scene(Camera _cam)
         {
             cam = _cam;
-            light = _light;
+            lights = new List<Light>();
             shapes = new List<Shape>();
             walls = new List<Shape>();
             random = new Random();
@@ -43,7 +43,7 @@ namespace SyntheseImage
             fastStruct.Add(tree);
 
 
-            for(int x = 0; x < cam.width;  x ++)
+            for (int x = 0; x < cam.width; x++)
             {
                 for (int y = 0; y < cam.height; y++)
                 {
@@ -60,196 +60,204 @@ namespace SyntheseImage
                     img.SetPixel(x, y, pixelColor.X, pixelColor.Y, pixelColor.Z);
                 }
             }
-        
+
 
 
             return img;
         }
 
-    private Tree CreateTree(List<Shape> elements)
-    {
-        if (elements.Count == 1) return new Tree(elements[0]);
-        else
+        private Tree CreateTree(List<Shape> elements)
         {
-            Box b = elements[0].GetBoundingBox();
-            for (int i = 1; i < elements.Count; i++)
-            {
-                b = b.Fusion(elements[i].GetBoundingBox());
-            }
-            elements = elements.OrderBy(s => (s.GetBoundingBox().pMin.X + s.GetBoundingBox().pMin.Y + s.GetBoundingBox().pMin.Z)).ToList();
-
-            List<Shape> leftElements = elements.GetRange(0, elements.Count / 2);
-            List<Shape> rightElements;
-            if (elements.Count % 2 == 0)
-            {
-                rightElements = elements.GetRange(elements.Count / 2, elements.Count / 2);
-            }
+            if (elements.Count == 1) return new Tree(elements[0]);
             else
             {
-                rightElements = elements.GetRange(elements.Count / 2, (elements.Count / 2) + 1);
-            }
-
-
-            return new Tree(b, CreateTree(leftElements), CreateTree(rightElements));
-        }
-    }
-    private void PrintTree(Tree t)
-    {
-        if (t.leaf) Console.WriteLine("LEAF :" + t.shape.GetType());
-        else
-        {
-            Console.WriteLine("BRANCHE");
-            PrintTree(t.tree1);
-            PrintTree(t.tree2);
-        }
-    }
-    private Vector3 SendRayon(Rayon rFromCam, int cpt = 0)
-    {
-        ResFindShape res = SearchShapeHit(rFromCam);
-
-        //Si on a rencontré une forme
-        if (res.coeff != float.MaxValue && res.shape != null)
-        {
-            cpt++;
-            Vector3 pointOnShape = rFromCam.GetPointAt(res.coeff);
-            //On décale i un tout petit peu vers l'extérieur de la forme pour être sur de pas être dans la forme.
-
-            Vector3 normalOnPointOnShape = res.shape.GetNormal(pointOnShape);
-
-            Vector3 pointOnShapeDecal = Vector3.Add(pointOnShape, Vector3.Multiply(normalOnPointOnShape, 0.5f));
-
-            Vector3 indirectLight = new Vector3(0, 0, 0);
-
-            if (cpt < 5)
-            {
-                Vector3 newDir;
-
-                if (res.shape.material.mat == Materials.Mirror)
+                Box b = elements[0].GetBoundingBox();
+                for (int i = 1; i < elements.Count; i++)
                 {
+                    b = b.Fusion(elements[i].GetBoundingBox());
+                }
+                elements = elements.OrderBy(s => (s.GetBoundingBox().pMin.X + s.GetBoundingBox().pMin.Y + s.GetBoundingBox().pMin.Z)).ToList();
 
-                    //On calcule la direction de réflexion
-                    newDir = Vector3.Add(
-                        Vector3.Multiply(2 * -Vector3.Dot(rFromCam.direction, normalOnPointOnShape), normalOnPointOnShape)
-                        , rFromCam.direction);
-
-                    indirectLight = res.shape.material.albedo * IndirectLightning(pointOnShapeDecal, newDir, res, cpt);
+                List<Shape> leftElements = elements.GetRange(0, elements.Count / 2);
+                List<Shape> rightElements;
+                if (elements.Count % 2 == 0)
+                {
+                    rightElements = elements.GetRange(elements.Count / 2, elements.Count / 2);
                 }
                 else
                 {
-                    //On génère un rebond aléatoire
-                    newDir = RandomBounce(res, pointOnShapeDecal);
+                    rightElements = elements.GetRange(elements.Count / 2, (elements.Count / 2) + 1);
+                }
 
-                    indirectLight = IndirectLightning(pointOnShapeDecal, newDir, res, cpt);
 
+                return new Tree(b, CreateTree(leftElements), CreateTree(rightElements));
+            }
+        }
+        private void PrintTree(Tree t)
+        {
+            if (t.leaf) Console.WriteLine("LEAF :" + t.shape.GetType());
+            else
+            {
+                Console.WriteLine("BRANCHE");
+                PrintTree(t.tree1);
+                PrintTree(t.tree2);
+            }
+        }
+        private Vector3 SendRayon(Rayon rFromCam, int cpt = 0)
+        {
+            ResFindShape res = SearchShapeHit(rFromCam);
+
+            //Si on a rencontré une forme
+            if (res.coeff != float.MaxValue && res.shape != null)
+            {
+                cpt++;
+                Vector3 pointOnShape = rFromCam.GetPointAt(res.coeff);
+                //On décale i un tout petit peu vers l'extérieur de la forme pour être sur de pas être dans la forme.
+
+                Vector3 normalOnPointOnShape = res.shape.GetNormal(pointOnShape);
+
+                Vector3 pointOnShapeDecal = Vector3.Add(pointOnShape, Vector3.Multiply(normalOnPointOnShape, 0.5f));
+
+                Vector3 indirectLight = new Vector3(0, 0, 0);
+
+                if (cpt < 5)
+                {
+                    Vector3 newDir;
+
+                    if (res.shape.material.mat == Materials.Mirror)
+                    {
+
+                        //On calcule la direction de réflexion
+                        newDir = Vector3.Add(
+                            Vector3.Multiply(2 * -Vector3.Dot(rFromCam.direction, normalOnPointOnShape), normalOnPointOnShape)
+                            , rFromCam.direction);
+
+                        indirectLight = res.shape.material.albedo * IndirectLightning(pointOnShapeDecal, newDir, res, cpt);
+                    }
+                    else
+                    {
+                        //On génère un rebond aléatoire
+                        newDir = RandomBounce(res, pointOnShapeDecal);
+
+                        indirectLight = IndirectLightning(pointOnShapeDecal, newDir, res, cpt);
+
+                    }
+                }
+
+                if (res.shape.material.mat != Materials.Mirror)
+                {
+                    Vector3 temp = Vector3.Zero;
+                    foreach (Light light in lights)
+                    {
+                        Vector3 l = Vector3.Subtract(light.origine, pointOnShapeDecal);
+                        float dist = l.Length();
+                        l = Vector3.Normalize(l);
+
+                        Vector3 lightEmmited = Vector3.Divide(
+                            Vector3.Multiply(res.shape.material.albedo, Math.Max(Math.Min(Vector3.Dot(normalOnPointOnShape, l), 1.0f), 0.0f))
+                            , (float)Math.PI);
+                        Vector3 directLight = DirectLightning(pointOnShapeDecal, res, dist, light);
+
+                        temp += Vector3.Add(Vector3.Multiply(lightEmmited, directLight), indirectLight);
+
+                    }
+                    return temp;
+
+
+                }
+                else
+                {
+                    return indirectLight;
                 }
             }
 
-            if (res.shape.material.mat != Materials.Mirror)
+            return new Vector3(0f, 0f, 0f); //On ne voit rien, on retourne la couleur du fond de l'image  --ATMOSPHERE
+        }
+
+        private Vector3 DirectLightning(Vector3 point, ResFindShape res, float dist, Light light)
+        {
+            //On créé un rayon de la forme jusqu'à la lumière
+            Rayon r2 = new Rayon(point, Vector3.Subtract(light.origine, point));
+            bool seeTheLight = true;
+            foreach (Shape s in fastStruct)
             {
-                Vector3 l = Vector3.Subtract(light.origine, pointOnShapeDecal);
-                float dist = l.Length();
-                l = Vector3.Normalize(l);
+                float coeff = s.RayIntersect(r2, out res.shape);
 
-                Vector3 lightEmmited = Vector3.Divide(
-                    Vector3.Multiply(res.shape.material.albedo, Math.Max(Math.Min(Vector3.Dot(normalOnPointOnShape, l), 1.0f), 0.0f))
-                    , (float)Math.PI);
-                Vector3 directLight = DirectLightning(pointOnShapeDecal, res, dist);
 
-                return Vector3.Add(Vector3.Multiply(lightEmmited, directLight), indirectLight);
+                //Si on croise une forme avant d'arriver à la lumière
+                if (coeff != -1 && coeff < 1)
+                {
+                    seeTheLight = false;
+                    break;
+                }
+
+            }
+
+            if (seeTheLight)
+            {
+
+                Vector3 powerReceived = Vector3.Multiply(light.power, 1 / (dist * dist));
+
+                return powerReceived;  //On voit une forme et elle est éclairé, on retourne sa couleur
             }
             else
             {
-                return indirectLight;
+
+                return new Vector3(0, 0, 0); //On voit une forme mais elle n'est pas éclairé, on renvoie du noir
             }
         }
 
-        return new Vector3(0.2f,0.1f,0.8f); //On ne voit rien, on retourne la couleur du fond de l'image  --ATMOSPHERE
-    }
-
-    private Vector3 DirectLightning(Vector3 point, ResFindShape res, float dist)
-    {
-        //On créé un rayon de la forme jusqu'à la lumière
-        Rayon r2 = new Rayon(point, Vector3.Subtract(light.origine, point));
-        bool seeTheLight = true;
-        foreach (Shape s in fastStruct)
+        private Vector3 IndirectLightning(Vector3 point, Vector3 dir, ResFindShape res, int cpt)
         {
-                float coeff = s.RayIntersect(r2,out res.shape);
+
+            Rayon mirrorRayon = new Rayon(point, dir);
+            return Vector3.Multiply(res.shape.material.albedo, SendRayon(mirrorRayon, cpt));
+        }
+
+        private Vector3 RandomBounce(ResFindShape res, Vector3 point)
+        {
+            double r1 = random.NextDouble();
+            double r2 = random.NextDouble();
+            //On créé une direction aléatoire
+            float X = (float)(Math.Cos(2 * Math.PI * r1) * Math.Sqrt(1 - r2));
+            float Y = (float)(Math.Sin(2 * Math.PI * r1) * Math.Sqrt(1 - r2));
+            float Z = (float)Math.Sqrt(r2);
+
+            Vector3 randomVector = new Vector3((float)random.NextDouble(), (float)random.NextDouble(), (float)random.NextDouble());
+
+            Vector3 xBase = Vector3.Normalize(Vector3.Cross(point, randomVector));
+            Vector3 yBase = Vector3.Cross(xBase, point);
+            Vector3 zBase = point;
+
+            return Vector3.Add(Vector3.Add(X * xBase, Y * yBase), Z * zBase);
+        }
+
+        private ResFindShape SearchShapeHit(Rayon rayon)
+        {
+            ResFindShape res = new ResFindShape();
+            res.coeff = float.MaxValue;
 
 
-            //Si on croise une forme avant d'arriver à la lumière
-            if (coeff != -1 && coeff < 1)
+            foreach (Shape s in fastStruct)
             {
-                seeTheLight = false;
-                break;
-            }
-
-        }
-
-        if (seeTheLight)
-        {
-
-            Vector3 powerReceived = Vector3.Multiply(light.power, 1 / (dist * dist));
-
-            return powerReceived;  //On voit une forme et elle est éclairé, on retourne sa couleur
-        }
-        else
-        {
-
-            return new Vector3(0, 0, 0); //On voit une forme mais elle n'est pas éclairé, on renvoie du noir
-        }
-    }
-
-    private Vector3 IndirectLightning(Vector3 point, Vector3 dir, ResFindShape res, int cpt)
-    {
-
-        Rayon mirrorRayon = new Rayon(point, dir);
-        return Vector3.Multiply(res.shape.material.albedo, SendRayon(mirrorRayon, cpt));
-    }
-
-    private Vector3 RandomBounce(ResFindShape res, Vector3 point)
-    {
-        double r1 = random.NextDouble();
-        double r2 = random.NextDouble();
-        //On créé une direction aléatoire
-        float X = (float)(Math.Cos(2 * Math.PI * r1) * Math.Sqrt(1 - r2));
-        float Y = (float)(Math.Sin(2 * Math.PI * r1) * Math.Sqrt(1 - r2));
-        float Z = (float)Math.Sqrt(r2);
-
-        Vector3 randomVector = new Vector3((float)random.NextDouble(), (float)random.NextDouble(), (float)random.NextDouble());
-
-        Vector3 xBase = Vector3.Normalize(Vector3.Cross(point, randomVector));
-        Vector3 yBase = Vector3.Cross(xBase, point);
-        Vector3 zBase = point;
-
-        return Vector3.Add(Vector3.Add(X * xBase, Y * yBase), Z * zBase);
-    }
-
-    private ResFindShape SearchShapeHit(Rayon rayon)
-    {
-        ResFindShape res = new ResFindShape();
-        res.coeff = float.MaxValue;
-
-
-        foreach (Shape s in fastStruct)
-        {
-            Shape tempShape;
+                Shape tempShape;
                 float temp = s.RayIntersect(rayon, out tempShape);
 
-            if (temp != -1 && temp < res.coeff)
-            {
-                res.coeff = temp;
-                res.shape = tempShape;
+                if (temp != -1 && temp < res.coeff)
+                {
+                    res.coeff = temp;
+                    res.shape = tempShape;
+                }
             }
+
+            return res;
+        }
+        private struct ResFindShape
+        {
+            public float coeff;
+            public Shape shape;
         }
 
-        return res;
-    }
-    private struct ResFindShape
-    {
-        public float coeff;
-        public Shape shape;
-    }
 
-
-}
+    }
 }
