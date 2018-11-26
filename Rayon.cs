@@ -18,55 +18,39 @@ namespace SyntheseImage
 
         public bool IntersectABox(Box box)
         {
-            float tmin = (box.pMin.X - origine.X) / direction.X;
-            float tmax = (box.pMax.X - origine.X) / direction.X;
+            Double rinvx = 1 / direction.X;
+            Double rinvy = 1 / direction.Y;
+            Double rinvz = 1 / direction.Z;
 
-            if (tmin > tmax)
+            // X slab Max box size
+            Double tx1 = (box.pMin.X - origine.X) * rinvx;
+            Double tx2 = (box.pMax.X - origine.X) * rinvx;
+
+            Double tminX = Math.Min(tx1, tx2);
+            Double tmaxX = Math.Max(tx1, tx2);
+
+            // Y slab
+            Double ty1 = (box.pMin.Y - origine.Y) * rinvy;
+            Double ty2 = (box.pMax.Y - origine.Y) * rinvy;
+
+            Double tminY = Math.Max(tminX, (Math.Min(ty1, ty2)));
+            Double tmaxY = Math.Min(tmaxX, (Math.Max(ty1, ty2)));
+
+            // Z slab
+            Double tz1 = (box.pMin.Z - origine.Z) * rinvz;
+            Double tz2 = (box.pMax.Z - origine.Z) * rinvz;
+
+            Double tminZ = Math.Max(tminY, (Math.Min(tz1, tz2)));
+            Double tmaxZ = Math.Min(tmaxY, (Math.Max(tz1, tz2)));
+
+            if (tmaxZ >= tminZ)
             {
-                float temp = tmin;
-                tmin = tmax;
-                tmax = temp;
+                return true;
             }
-
-            float tymin = (box.pMin.Y - origine.Y) / direction.Y;
-            float tymax = (box.pMax.Y - origine.Y) / direction.Y;
-
-            if (tymin > tymax)
+            else
             {
-                float temp = tymin;
-                tymin = tymax;
-                tymax = temp;                
-            }
-
-            if ((tmin > tymax) || (tymin > tmax))
                 return false;
-
-            if (tymin > tmin)
-                tmin = tymin;
-
-            if (tymax < tmax)
-                tmax = tymax;
-
-            float tzmin = (box.pMin.Z - origine.Z) / direction.Z;
-            float tzmax = (box.pMax.Z - origine.Z) / direction.Z;
-
-            if (tzmin > tzmax)
-            {
-                float temp = tzmin;
-                tzmin = tzmax;
-                tzmax = temp;
             }
-
-            if ((tmin > tzmax) || (tzmin > tmax))
-                return false;
-
-            if (tzmin > tmin)
-                tmin = tzmin;
-
-            if (tzmax < tmax)
-                tmax = tzmax;
-
-            return true;
 
 
         }
@@ -90,6 +74,7 @@ namespace SyntheseImage
 
         private float IntersectATree(Tree tree, out Shape shape)
         {
+
             if (IntersectABox(tree.GetBoundingBox()))
             {
                 if (tree.leaf)

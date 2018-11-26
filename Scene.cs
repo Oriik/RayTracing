@@ -11,7 +11,7 @@ namespace SyntheseImage
 
         public List<Shape> walls;
 
-        List<Shape> allElements;
+        private List<Shape> fastStruct;
 
 
         private Tree tree;
@@ -40,12 +40,12 @@ namespace SyntheseImage
             Console.WriteLine("NB DE SHAPES " + shapes.Count);
             Console.WriteLine("TREE FINISHED");
 
-            allElements = new List<Shape>(walls);
-            allElements.Add(tree);
+            fastStruct = new List<Shape>(walls);
+            fastStruct.Add(tree);
 
             for (int y = 0; y < cam.height; y++)
             {
-                
+
                 for (int x = 0; x < cam.width; x++)
                 {
                     Vector3 pointOnCam = new Vector3(cam.origine.X + x, cam.origine.Y + y, cam.origine.Z);
@@ -76,19 +76,19 @@ namespace SyntheseImage
                 {
                     b = b.Fusion(elements[i].GetBoundingBox());
                 }
-                elements = elements.OrderBy(s => s.GetBoundingBox().pMin.X).ToList();
+                elements = elements.OrderBy(s => (s.GetBoundingBox().pMin.X + s.GetBoundingBox().pMin.Y + s.GetBoundingBox().pMin.Z)).ToList();
 
                 List<Shape> leftElements = elements.GetRange(0, elements.Count / 2);
                 List<Shape> rightElements;
                 if (elements.Count % 2 == 0)
                 {
-                   rightElements = elements.GetRange(elements.Count / 2, elements.Count / 2);
+                    rightElements = elements.GetRange(elements.Count / 2, elements.Count / 2);
                 }
                 else
                 {
-                     rightElements = elements.GetRange(elements.Count / 2, (elements.Count / 2)+1);
+                    rightElements = elements.GetRange(elements.Count / 2, (elements.Count / 2) + 1);
                 }
-                
+
 
                 return new Tree(b, CreateTree(leftElements), CreateTree(rightElements));
             }
@@ -139,7 +139,7 @@ namespace SyntheseImage
                         //On génère un rebond aléatoire
                         newDir = RandomBounce(res, pointOnShapeDecal);
 
-                         //indirectLight = IndirectLightning(pointOnShapeDecal, newDir, res, cpt);
+                        indirectLight = IndirectLightning(pointOnShapeDecal, newDir, res, cpt);
 
                     }
                 }
@@ -170,8 +170,8 @@ namespace SyntheseImage
         {
             //On créé un rayon de la forme jusqu'à la lumière
             Rayon r2 = new Rayon(point, Vector3.Subtract(light.origine, point));
-            bool seeTheLight = true;            
-            foreach (Shape s in shapes)
+            bool seeTheLight = true;
+            foreach (Shape s in fastStruct)
             {
                 float coeff = r2.IntersectAShape(s, out res.shape);
 
@@ -179,7 +179,7 @@ namespace SyntheseImage
                 //Si on croise une forme avant d'arriver à la lumière
                 if (coeff != -1 && coeff < 1)
                 {
-                    seeTheLight = false;                    
+                    seeTheLight = false;
                     break;
                 }
 
@@ -194,8 +194,8 @@ namespace SyntheseImage
             }
             else
             {
-                
-                return new Vector3(0, 0 , 0); //On voit une forme mais elle n'est pas éclairé, on renvoie du noir
+
+                return new Vector3(0, 0, 0); //On voit une forme mais elle n'est pas éclairé, on renvoie du noir
             }
         }
 
@@ -231,20 +231,20 @@ namespace SyntheseImage
         {
             ResFindShape res = new ResFindShape();
             res.coeff = float.MaxValue;
-           
-           
-            foreach (Shape s in allElements)
+
+
+            foreach (Shape s in fastStruct)
             {
                 Shape tempShape;
                 float temp = rayon.IntersectAShape(s, out tempShape);
-               
+
                 if (temp != -1 && temp < res.coeff)
                 {
                     res.coeff = temp;
                     res.shape = tempShape;
                 }
             }
-           
+
             return res;
         }
         private struct ResFindShape

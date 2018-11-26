@@ -9,7 +9,7 @@ namespace SyntheseImage
 
         public Box(Vector3 _pMin, Vector3 _pMax)
         {
-            pMin = _pMax;
+            pMin = _pMin;
             pMax = _pMax;
         }
 
@@ -26,7 +26,7 @@ namespace SyntheseImage
             if (b.pMax.Y > max.Y) max.Y = b.pMax.Y;
             if (b.pMax.Z > max.Z) max.Z = b.pMax.Z;
 
-            Box fusion = new Box(min,max);
+            Box fusion = new Box(min, max);
             return fusion;
         }
     }
