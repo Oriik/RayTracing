@@ -9,5 +9,7 @@ namespace SyntheseImage
         public abstract Vector3 GetNormal(Vector3 point);
 
         public abstract Box GetBoundingBox();
+
+        public abstract float RayIntersect(Rayon ray, out Shape returnShape);
     }
 }

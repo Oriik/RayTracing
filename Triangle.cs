@@ -64,5 +64,28 @@ namespace SyntheseImage
             normal = -Vector3.Normalize(Vector3.Cross(u, v));
         }
 
+        public override float RayIntersect(Rayon ray, out Shape returnShape)
+        {
+            returnShape = null;
+            Vector3 h = Vector3.Cross(ray.direction, this.v);
+            float a = Vector3.Dot(this.u, h);
+            if (a > -float.Epsilon && a < float.Epsilon) { return -1.0f; }
+            float f = 1.0f / a;
+            Vector3 s = ray.origine - this.a;
+            float u = f * (Vector3.Dot(s, h));
+            if (u < 0 || u > 1.0) { return -1.0f; }
+            Vector3 q = Vector3.Cross(s, this.u);
+            float v = f * Vector3.Dot(ray.direction, q);
+            if (v < 0 || u + v > 1) { return -1.0f; }
+            float t = f * Vector3.Dot(this.v, q);
+
+            if (t > float.Epsilon)
+            {
+                returnShape = this;
+                return t;
+            }
+            else { return -1.0f; }
+        }
+
     }
 }

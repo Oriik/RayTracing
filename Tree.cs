@@ -37,5 +37,51 @@ namespace SyntheseImage
         {
             return Vector3.Zero;
         }
+
+        public override float RayIntersect(Rayon ray, out Shape returnShape)
+        {
+            if (GetBoundingBox().RayIntersect(ray))
+            {
+                if (leaf)
+                {
+                    return  this.shape.RayIntersect(ray, out returnShape);
+                }
+                else
+                {
+                    float t1 = tree1.RayIntersect(ray, out returnShape);
+                    float t2 = tree2.RayIntersect(ray, out returnShape);
+                    if (t1 == -1.0f)
+                    {
+                        if (t2 == -1.0f)
+                        {
+                            shape = null;
+                            return -1.0f;
+                        }
+                        else
+                        {
+                            return tree2.RayIntersect(ray, out returnShape);
+                        }
+                    }
+                    else
+                    {
+                        if (t2 == -1.0f)
+                        {
+                            return tree1.RayIntersect(ray, out returnShape);
+                        }
+                        else
+                        {
+                            if (t1 < t2) return tree1.RayIntersect(ray, out returnShape);
+                            else return tree2.RayIntersect(ray, out returnShape);
+                        }
+                    }
+
+                }
+            }
+            else
+            {
+                returnShape = null;
+                return -1.0f;
+            }
+        }
     }
 }
