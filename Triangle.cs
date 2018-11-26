@@ -32,11 +32,17 @@ namespace SyntheseImage
             if (b.X < pMin.X) pMin.X = b.X;
             if (b.Y < pMin.Y) pMin.Y = b.Y;
             if (b.Z < pMin.Z) pMin.Z = b.Z;
+            if (c.X < pMin.X) pMin.X = c.X;
+            if (c.Y < pMin.Y) pMin.Y = c.Y;
+            if (c.Z < pMin.Z) pMin.Z = c.Z;
 
             pMax = a;
             if (b.X > pMax.X) pMax.X = b.X;
             if (b.Y > pMax.Y) pMax.Y = b.Y;
             if (b.Z > pMax.Z) pMax.Z = b.Z;
+            if (c.X > pMax.X) pMax.X = c.X;
+            if (c.Y > pMax.Y) pMax.Y = c.Y;
+            if (c.Z > pMax.Z) pMax.Z = c.Z;
             Box box = new Box(pMin, pMax);
             return box;
         }

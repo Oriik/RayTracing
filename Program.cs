@@ -11,7 +11,7 @@ namespace SyntheseImage
             Console.WriteLine("Working ...");
 
             Camera camera = new Camera(new Vector3(0, 0, 0), 1280, 720, new Vector3(0, 0, 1), 1000);
-            Light light = new Light(new Vector3(600, 200, 200), new Vector3(1000000, 1000000, 1000000));
+            Light light = new Light(new Vector3(600, 200, 500), new Vector3(1000000, 1000000, 1000000));
             Scene scene = new Scene(camera, light);
 
             Sphere leftWall = new Sphere(new Vector3((float)-1e5 - 100, 360, 500), (float)1e5,
@@ -23,7 +23,7 @@ namespace SyntheseImage
             Sphere bottomWall = new Sphere(new Vector3(640, (float)1e5 + 820, 500), (float)1e5,
                 new Material(Materials.Difuse, Material.Red));
             Sphere backWall = new Sphere(new Vector3(640, 360, (float)1e5 + 1100), (float)1e5,
-                new Material(Materials.Difuse, Material.Red));
+                new Material(Materials.Difuse, Material.Yellow));
             Sphere frontWall = new Sphere(new Vector3(640, 360, (float)-1e5 - 100), (float)1e5,
                 new Material(Materials.Difuse, Material.Red));
 
@@ -32,7 +32,7 @@ namespace SyntheseImage
             scene.walls.AddRange(walls);
 
             // string[] lines = System.IO.File.ReadAllLines(@"C:\Users\Guill\Documents\Gamagora\SyntheseImage\SyntheseImage\trex.stl"); //HOME
-            string[] lines = System.IO.File.ReadAllLines(@" C:\Users\guquiniou\Documents\GitHub\SyntheseImage\trex.stl"); //FAC
+            string[] lines = System.IO.File.ReadAllLines(@" C:\Users\guquiniou\Documents\GitHub\SyntheseImage\test.stl"); //FAC
            
 
             char[] paramSplit = new char[1] { ' ' };
@@ -53,19 +53,21 @@ namespace SyntheseImage
                     temp.Translate(translation);
 
                     scene.shapes.Add(temp);
-
                     i += 3;
 
                 }
             }
 
+            Sphere s = new Sphere(new Vector3(200, 400, 200), 50, new Material(Materials.Mirror, Material.White));
+            scene.shapes.Add(s);
 
+           
 
-            Image img3D = scene.DrawImg(5);
-            img3D.WritePPM();
+           Image img3D = scene.DrawImg(10);
+           img3D.WritePPM();
 
-            System.Diagnostics.Process.Start(@"C:\Users\Guill\Documents\Gamagora\SyntheseImage\SyntheseImage\bin\Debug\" + img3D.fileName); //HOME
-           //  System.Diagnostics.Process.Start(@"C:\Users\guquiniou\Documents\GitHub\SyntheseImage\bin\Release\" + img3D.fileName); // FAC
+            //System.Diagnostics.Process.Start(@"C:\Users\Guill\Documents\Gamagora\SyntheseImage\SyntheseImage\bin\Debug\" + img3D.fileName); //HOME
+            System.Diagnostics.Process.Start(@"C:\Users\guquiniou\Documents\GitHub\SyntheseImage\bin\Release\" + img3D.fileName); // FAC
 
             //Console.ReadLine();
 
