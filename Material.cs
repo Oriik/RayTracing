@@ -9,7 +9,7 @@ namespace SyntheseImage
 {
     public enum Materials
     {
-        Difuse, Mirror, Light
+        Difuse, Mirror, Glass
     }
 
     

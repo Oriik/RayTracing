@@ -124,23 +124,21 @@ namespace SyntheseImage
                 {
                     Vector3 newDir;
 
-                    if (res.shape.material.mat == Materials.Mirror)
+                    if (res.shape.material.mat == Materials.Mirror || res.shape.material.mat == Materials.Glass)
                     {
-
                         //On calcule la direction de réflexion
                         newDir = Vector3.Add(
                             Vector3.Multiply(2 * -Vector3.Dot(rFromCam.direction, normalOnPointOnShape), normalOnPointOnShape)
                             , rFromCam.direction);
 
                         indirectLight = res.shape.material.albedo * IndirectLightning(pointOnShapeDecal, newDir, res, cpt);
-                    }
+                    }                    
                     else
                     {
                         //On génère un rebond aléatoire
                         newDir = RandomBounce(res, pointOnShapeDecal);
 
                         indirectLight = IndirectLightning(pointOnShapeDecal, newDir, res, cpt);
-
                     }
                 }
 
@@ -162,8 +160,6 @@ namespace SyntheseImage
 
                     }
                     return temp;
-
-
                 }
                 else
                 {
@@ -171,7 +167,7 @@ namespace SyntheseImage
                 }
             }
 
-            return new Vector3(0f, 0f, 0f); //On ne voit rien, on retourne la couleur du fond de l'image  --ATMOSPHERE
+            return new Vector3(0.1f, 0.1f, 0.25f); //On ne voit rien, on retourne la couleur du fond de l'image  --ATMOSPHERE
         }
 
         private Vector3 DirectLightning(Vector3 point, ResFindShape res, float dist, Light light)

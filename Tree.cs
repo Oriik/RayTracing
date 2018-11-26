@@ -48,30 +48,41 @@ namespace SyntheseImage
                 }
                 else
                 {
-                    float t1 = tree1.RayIntersect(ray, out returnShape);
-                    float t2 = tree2.RayIntersect(ray, out returnShape);
+                    Shape t1Shape, t2Shape;
+                    float t1 = tree1.RayIntersect(ray, out t1Shape);
+                    float t2 = tree2.RayIntersect(ray, out t2Shape);
                     if (t1 == -1.0f)
                     {
                         if (t2 == -1.0f)
                         {
-                            shape = null;
+                            returnShape = null;
                             return -1.0f;
                         }
                         else
                         {
-                            return tree2.RayIntersect(ray, out returnShape);
+                            returnShape = t2Shape;
+                            return t2;
                         }
                     }
                     else
                     {
                         if (t2 == -1.0f)
                         {
-                            return tree1.RayIntersect(ray, out returnShape);
+                            returnShape = t1Shape;
+                            return t1;
                         }
                         else
                         {
-                            if (t1 < t2) return tree1.RayIntersect(ray, out returnShape);
-                            else return tree2.RayIntersect(ray, out returnShape);
+                            if (t1 < t2)
+                            {
+                                returnShape = t1Shape;
+                                return t1;
+                            }
+                            else
+                            {
+                                returnShape = t2Shape;
+                                return t2;
+                            }
                         }
                     }
 
