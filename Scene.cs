@@ -52,6 +52,7 @@ namespace SyntheseImage
                     Vector3 pixelColor = new Vector3(0, 0, 0);
                     for (int i = 0; i < nbRayonPerPixels; i++)
                     {
+                        pointOnCam = Camera.AntiAliasing(pointOnCam, random);
                         Rayon rFromCam = new Rayon(pointOnCam, cam.GetFocusAngle(x, y));
                         pixelColor = Vector3.Add(pixelColor, SendRayon(rFromCam));
                     }
@@ -66,43 +67,7 @@ namespace SyntheseImage
             return img;
         }
 
-        private Tree CreateTree(List<Shape> elements)
-        {
-            if (elements.Count == 1) return new Tree(elements[0]);
-            else
-            {
-                Box b = elements[0].GetBoundingBox();
-                for (int i = 1; i < elements.Count; i++)
-                {
-                    b = b.Fusion(elements[i].GetBoundingBox());
-                }
-                elements = elements.OrderBy(s => (s.GetBoundingBox().pMin.X + s.GetBoundingBox().pMin.Y + s.GetBoundingBox().pMin.Z)).ToList();
-
-                List<Shape> leftElements = elements.GetRange(0, elements.Count / 2);
-                List<Shape> rightElements;
-                if (elements.Count % 2 == 0)
-                {
-                    rightElements = elements.GetRange(elements.Count / 2, elements.Count / 2);
-                }
-                else
-                {
-                    rightElements = elements.GetRange(elements.Count / 2, (elements.Count / 2) + 1);
-                }
-
-
-                return new Tree(b, CreateTree(leftElements), CreateTree(rightElements));
-            }
-        }
-        private void PrintTree(Tree t)
-        {
-            if (t.leaf) Console.WriteLine("LEAF :" + t.shape.GetType());
-            else
-            {
-                Console.WriteLine("BRANCHE");
-                PrintTree(t.tree1);
-                PrintTree(t.tree2);
-            }
-        }
+       
         private Vector3 SendRayon(Rayon rFromCam, int cpt = 0)
         {
             ResFindShape res = SearchShapeHit(rFromCam);
@@ -124,7 +89,7 @@ namespace SyntheseImage
                 {
                     Vector3 newDir;
 
-                    if (res.shape.material.mat == Materials.Mirror || res.shape.material.mat == Materials.Glass)
+                    if (res.shape.material.mat == Materials.Mirror)
                     {
                         //On calcule la direction de réflexion
                         newDir = Vector3.Add(
@@ -132,7 +97,15 @@ namespace SyntheseImage
                             , rFromCam.direction);
 
                         indirectLight = res.shape.material.albedo * IndirectLightning(pointOnShapeDecal, newDir, res, cpt);
-                    }                    
+                    }
+                    if(res.shape.material.mat == Materials.Glass && random.Next(2) == 0)
+                    {
+                        newDir = Vector3.Add(
+                           Vector3.Multiply(2 * -Vector3.Dot(rFromCam.direction, normalOnPointOnShape), normalOnPointOnShape)
+                           , rFromCam.direction);
+
+                        indirectLight = res.shape.material.albedo * IndirectLightning(pointOnShapeDecal, newDir, res, cpt);
+                    }
                     else
                     {
                         //On génère un rebond aléatoire
@@ -252,6 +225,44 @@ namespace SyntheseImage
         {
             public float coeff;
             public Shape shape;
+        }
+
+        private Tree CreateTree(List<Shape> elements)
+        {
+            if (elements.Count == 1) return new Tree(elements[0]);
+            else
+            {
+                Box b = elements[0].GetBoundingBox();
+                for (int i = 1; i < elements.Count; i++)
+                {
+                    b = b.Fusion(elements[i].GetBoundingBox());
+                }
+                elements = elements.OrderBy(s => (s.GetBoundingBox().pMin.X + s.GetBoundingBox().pMin.Y + s.GetBoundingBox().pMin.Z)).ToList();
+
+                List<Shape> leftElements = elements.GetRange(0, elements.Count / 2);
+                List<Shape> rightElements;
+                if (elements.Count % 2 == 0)
+                {
+                    rightElements = elements.GetRange(elements.Count / 2, elements.Count / 2);
+                }
+                else
+                {
+                    rightElements = elements.GetRange(elements.Count / 2, (elements.Count / 2) + 1);
+                }
+
+
+                return new Tree(b, CreateTree(leftElements), CreateTree(rightElements));
+            }
+        }
+        private void PrintTree(Tree t)
+        {
+            if (t.leaf) Console.WriteLine("LEAF :" + t.shape.GetType());
+            else
+            {
+                Console.WriteLine("BRANCHE");
+                PrintTree(t.tree1);
+                PrintTree(t.tree2);
+            }
         }
 
 

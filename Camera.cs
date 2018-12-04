@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 
 namespace SyntheseImage
 {
@@ -25,6 +26,12 @@ namespace SyntheseImage
         {
             Vector3 res = Vector3.Subtract(new Vector3(x, y, origine.Z), focus);
             return Vector3.Normalize(res);
+        }
+
+        public static Vector3 AntiAliasing (Vector3 origine, Random random)
+        {
+            Vector3 temp = new Vector3((float)random.NextDouble() -0.5f, (float)random.NextDouble() - 0.5f, 0);
+            return origine + temp;
         }
     }
 }

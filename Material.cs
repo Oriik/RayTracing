@@ -12,8 +12,6 @@ namespace SyntheseImage
         Difuse, Mirror, Glass
     }
 
-    
-
 
     public class Material
     {
