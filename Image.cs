@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Numerics;
 using System.IO;
+using System.Drawing;
+using System.Drawing.Imaging;
 
 namespace SyntheseImage
 {
@@ -34,7 +36,7 @@ namespace SyntheseImage
                     b[i, j] = 240;
                 }
         }
-        
+
         public void drawARayon(Rayon rayon)
         {
 
@@ -61,7 +63,7 @@ namespace SyntheseImage
 
         }
 
-        
+
 
         public void SetPixel(int x, int y, float r, float g, float b)
         {
@@ -70,11 +72,11 @@ namespace SyntheseImage
             this.b[x, y] = Clamp((int)(b * 255), 0, 255);
         }
 
-        public void WritePPM()
+        public void WritePPM(int i)
         {
             //Use a streamwriter to write the text part of the encoding.
 
-            var writer = new StreamWriter(fileName);
+            var writer = new StreamWriter(i + "_" + fileName);
             writer.Write("P3" + "\n");
             writer.Write(width + " " + height + "\n");
             writer.Write("255" + "\n");
@@ -84,12 +86,29 @@ namespace SyntheseImage
                 string line = "";
                 for (int x = 0; x < width; x++)
                 {
-                    line += r[x,y] + " " + g[x,y] + " " + b[x,y]+ " ";
+                    line += r[x, y] + " " + g[x, y] + " " + b[x, y] + " ";
 
                 }
                 writer.WriteLine(line);
             }
             writer.Close();
+
+        }
+
+        public Bitmap WriteBMP(int i)
+        {
+            // Create a Bitmap object from a file.
+            Bitmap myBitmap = new Bitmap(width, height, PixelFormat.Format24bppRgb);
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    Color col = Color.FromArgb(r[x, y], g[x, y], b[x, y]);
+                    myBitmap.SetPixel(x, y, col);
+                }
+            }
+
+            return myBitmap;
 
 
         }
