@@ -95,7 +95,7 @@ namespace SyntheseImage
 
         }
 
-        public Bitmap WriteBMP(int i)
+        public Bitmap WriteBMP()
         {
             // Create a Bitmap object from a file.
             Bitmap myBitmap = new Bitmap(width, height, PixelFormat.Format24bppRgb);
@@ -109,8 +109,6 @@ namespace SyntheseImage
             }
 
             return myBitmap;
-
-
         }
 
         private int Clamp(int v, int min, int max)

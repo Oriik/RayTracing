@@ -35,9 +35,9 @@ namespace SyntheseImage
 
             tree = CreateTree(shapes);
 
-            PrintTree(tree);
-            Console.WriteLine("NB DE SHAPES " + shapes.Count);
-            Console.WriteLine("TREE FINISHED");
+            //PrintTree(tree);
+            //Console.WriteLine("NB DE SHAPES " + shapes.Count);
+            //Console.WriteLine("TREE FINISHED");
 
             fastStruct = new List<Shape>(walls);
             fastStruct.Add(tree);
