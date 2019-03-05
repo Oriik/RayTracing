@@ -5,9 +5,10 @@ namespace SyntheseImage
 {
     public class Rayon
     {
-
+        #region Variables
         public Vector3 origine;
         public Vector3 direction;
+        #endregion
 
         public Rayon(Vector3 _origine, Vector3 _direction)
         {

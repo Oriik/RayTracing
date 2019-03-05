@@ -16,90 +16,40 @@ namespace SyntheseImage
     {
         static void Main(string[] args)
         {
+            // createPPM("glass");
             List<Bitmap> bitmaps = new List<Bitmap>();
+            List<Bitmap> bitmaps2 = new List<Bitmap>();
 
 
-            for (int i = 1; i < 3; i++)
+            var thread = new Thread(() =>
             {
+                for (int i = 0; i < 5; i++)
+                {
+                    bitmaps.Add(createBitmap(i));
+                }
+            });
 
-                var thread = new Thread(() =>
-                {
-                    bitmaps.Add(createGif(1*i +i));
-                });
-                thread.Start();
-                var thread2 = new Thread(() =>
-                {
-                    bitmaps.Add(createGif(2*i +i));
-                });
-                thread2.Start();
-                var thread3 = new Thread(() =>
-                {
-                    bitmaps.Add(createGif(3*i +i));
-                });
-                thread3.Start();
-                var thread4 = new Thread(() =>
-                {
-                    bitmaps.Add(createGif(4*i +i));
-                });
-                thread4.Start();
-                var thread5 = new Thread(() =>
-                {
-                    bitmaps.Add(createGif(5*i +i));
-                });
-                thread5.Start();
-                var thread6 = new Thread(() =>
-                {
-                    bitmaps.Add(createGif(6*i +i));
-                });
-                thread6.Start();
-                var thread7 = new Thread(() =>
-                {
-                    bitmaps.Add(createGif(7*i +i));
-                });
-                thread7.Start();
-                var thread8 = new Thread(() =>
-                {
-                    bitmaps.Add(createGif(8*i +i));
-                });
-                thread8.Start();
-
-                thread.Join();
-                thread2.Join();
-                thread3.Join();
-                thread4.Join();
-                thread5.Join();
-                thread6.Join();
-                thread7.Join();
-                thread8.Join();
-
-            }
-
-
-
-            GifBitmapEncoder gEnc = new GifBitmapEncoder();
-            foreach (Bitmap bmpImage in bitmaps)
+            var thread2 = new Thread(() =>
             {
-                var bmp = bmpImage.GetHbitmap();
-                var src = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
-                    bmp,
-                    IntPtr.Zero,
-                    Int32Rect.Empty,
-                    BitmapSizeOptions.FromEmptyOptions());
-                gEnc.Frames.Add(BitmapFrame.Create(src));
+                for (int i = 5; i < 10; i++)
+                {
+                    bitmaps2.Add(createBitmap(i));
+                }
+            });
 
-            }
+            thread.Start();
+            thread2.Start();
+            thread.Join();
+            thread2.Join();
 
-            using (var ms = new MemoryStream())
+            bitmaps.AddRange(bitmaps2);
+
+            using (var gif = AnimatedGif.AnimatedGif.Create("gif.gif", 100))
             {
-                gEnc.Save(ms);
-                var fileBytes = ms.ToArray();
-                // This is the NETSCAPE2.0 Application Extension.
-                var applicationExtension = new byte[] { 33, 255, 11, 78, 69, 84, 83, 67, 65, 80, 69, 50, 46, 48, 3, 1, 0, 0, 0 }; //gif looping
-                var newBytes = new List<byte>();
-                newBytes.AddRange(fileBytes.Take(13));
-                newBytes.AddRange(applicationExtension);
-                newBytes.AddRange(fileBytes.Skip(13));
-                File.WriteAllBytes("gif.gif", newBytes.ToArray());
+                foreach (Bitmap bmpImage in bitmaps)
+                {
+                    gif.AddFrame(bmpImage);
+                }
             }
 
             //System.Diagnostics.Process.Start(@"C:\Users\Guill\Documents\Gamagora\SyntheseImage\SyntheseImage\bin\Debug\" + img3D.fileName); //HOME
@@ -108,7 +58,7 @@ namespace SyntheseImage
 
         }
 
-        private static Bitmap createGif(int frameNumber)
+        private static Bitmap createBitmap(int frameNumber)
         {
 
             Console.WriteLine("Start thread " + frameNumber);
@@ -138,8 +88,8 @@ namespace SyntheseImage
             Light[] lights = { light1 };
             scene.lights.AddRange(lights);
 
-            // string[] lines = System.IO.File.ReadAllLines(@"C:\Users\Guill\Documents\Gamagora\SyntheseImage\SyntheseImage\test.stl"); //HOME
-            string[] lines = System.IO.File.ReadAllLines(@" C:\Users\guquiniou\Documents\GitHub\SyntheseImage\test.stl"); //FAC
+            string[] lines = System.IO.File.ReadAllLines(@"C:\Users\Guill\Documents\Gamagora\SyntheseImage\SyntheseImage\test.stl"); //HOME
+                                                                                                                                     // string[] lines = System.IO.File.ReadAllLines(@" C:\Users\guquiniou\Documents\GitHub\SyntheseImage\test.stl"); //FAC
 
             scene.shapes.Clear();
 
@@ -165,9 +115,68 @@ namespace SyntheseImage
             }
 
 
-            Image img3D = scene.DrawImg(5);
-            img3D.WritePPM(frameNumber);
+            Image img3D = scene.DrawImg(5, frameNumber.ToString());
+            img3D.WritePPM();
             return img3D.WriteBMP();
+
+        }
+        private static void createPPM(string filename)
+        {
+           
+            Camera camera = new Camera(new Vector3(0, 0, 0), 1280, 720, new Vector3(0, 0, 1), 1000);
+            Scene scene = new Scene(camera);
+
+            Sphere leftWall = new Sphere(new Vector3((float)-1e5 - 100, 360, 500), (float)1e5,
+              new Material(Materials.Difuse, Material.Green));
+            Sphere rightWall = new Sphere(new Vector3((float)1e5 + 1380, 360, 500), (float)1e5,
+                new Material(Materials.Difuse, Material.Blue));
+            Sphere topWall = new Sphere(new Vector3(640, (float)-1e5 - 100, 500), (float)1e5,
+                new Material(Materials.Difuse, Material.Pink));
+            Sphere bottomWall = new Sphere(new Vector3(640, (float)1e5 + 820, 500), (float)1e5,
+                new Material(Materials.Difuse, Material.White));
+            Sphere backWall = new Sphere(new Vector3(640, 360, (float)1e5 + 1100), (float)1e5,
+                new Material(Materials.Difuse, Material.Yellow));
+            Sphere frontWall = new Sphere(new Vector3(640, 360, (float)-1e5 - 100), (float)1e5,
+                new Material(Materials.Difuse, Material.Red));
+
+
+            Shape[] walls = { bottomWall, leftWall, rightWall, topWall, backWall, frontWall };
+            scene.walls.AddRange(walls);
+            List<Bitmap> bitmaps = new List<Bitmap>();
+
+            scene.lights.Clear();
+            Light light1 = new Light(new Vector3(800 , 200 , 800 ), new Vector3(500000, 500000, 500000));
+            Light[] lights = { light1 };
+            scene.lights.AddRange(lights);
+
+            string[] lines = System.IO.File.ReadAllLines(@"C:\Users\Guill\Documents\Gamagora\SyntheseImage\SyntheseImage\test.stl"); //HOME
+                                                                                                                                     // string[] lines = System.IO.File.ReadAllLines(@" C:\Users\guquiniou\Documents\GitHub\SyntheseImage\test.stl"); //FAC
+
+            scene.shapes.Clear();
+
+            char[] paramSplit = new char[1] { ' ' };
+            Vector3 translation = new Vector3(350 , 300 , 400);
+            for (int j = 0; j < lines.Length; j++)
+            {
+                if (lines[j].Contains("outer loop"))
+                {
+                    string[] t = lines[j + 1].Split(paramSplit);
+
+                    Vector3 a = new Vector3(float.Parse(t[1].Replace('.', ',')), float.Parse(t[3].Replace('.', ',')), float.Parse(t[2].Replace('.', ',')));
+                    t = lines[j + 2].Split(paramSplit);
+                    Vector3 b = new Vector3(float.Parse(t[1].Replace('.', ',')), float.Parse(t[3].Replace('.', ',')), float.Parse(t[2].Replace('.', ',')));
+                    t = lines[j + 3].Split(paramSplit);
+                    Vector3 c = new Vector3(float.Parse(t[1].Replace('.', ',')), float.Parse(t[3].Replace('.', ',')), float.Parse(t[2].Replace('.', ',')));
+                    Triangle temp = new Triangle(a, b, c, new Material(Materials.Glass, Material.White));
+                    temp.Translate(translation);
+
+                    scene.shapes.Add(temp);
+                    j += 3;
+                }
+            }
+
+            Image img3D = scene.DrawImg(10, filename);
+            img3D.WritePPM();
 
         }
     }

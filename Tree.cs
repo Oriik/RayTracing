@@ -9,28 +9,30 @@ namespace SyntheseImage
 {
     public class Tree : Shape
     {
-        public bool leaf;
-        public Shape shape;
-        public Box box;
-        public Tree tree1, tree2;
+        #region Variables
+        private bool m_leaf;
+        private Shape m_shape;
+        private Box m_box;
+        private Tree m_tree1, m_tree2;
+        #endregion
 
         public Tree(Shape s)
         {
-            leaf = true;
-            shape = s;            
+            m_leaf = true;
+            m_shape = s;            
         }
         public Tree(Box b, Tree t1, Tree t2)
         {
-            box = b;
-            tree1 = t1;
-            tree2 = t2;
-            leaf = false;
+            m_box = b;
+            m_tree1 = t1;
+            m_tree2 = t2;
+            m_leaf = false;
         }
 
         public override Box GetBoundingBox()
         {
-            if (leaf) return shape.GetBoundingBox();
-            else return box;
+            if (m_leaf) return m_shape.GetBoundingBox();
+            else return m_box;
         }
 
         public override Vector3 GetNormal(Vector3 point)
@@ -42,15 +44,15 @@ namespace SyntheseImage
         {
             if (GetBoundingBox().RayIntersect(ray))
             {
-                if (leaf)
+                if (m_leaf)
                 {
-                    return  this.shape.RayIntersect(ray, out returnShape);
+                    return  this.m_shape.RayIntersect(ray, out returnShape);
                 }
                 else
                 {
                     Shape t1Shape, t2Shape;
-                    float t1 = tree1.RayIntersect(ray, out t1Shape);
-                    float t2 = tree2.RayIntersect(ray, out t2Shape);
+                    float t1 = m_tree1.RayIntersect(ray, out t1Shape);
+                    float t2 = m_tree2.RayIntersect(ray, out t2Shape);
                     if (t1 == -1.0f)
                     {
                         if (t2 == -1.0f)

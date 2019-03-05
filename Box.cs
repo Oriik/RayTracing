@@ -6,7 +6,9 @@ namespace SyntheseImage
 {
     public class Box
     {
+        #region Variables
         public Vector3 pMin, pMax;
+        #endregion
 
         public Box(Vector3 _pMin, Vector3 _pMax)
         {

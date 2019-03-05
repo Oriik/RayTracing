@@ -10,30 +10,30 @@ namespace SyntheseImage
     {
         // The output file after ray tracing operate
 
-
-        public int height;
-        public int width;
-        public int[,] r;
-        public int[,] g;
-        public int[,] b;
-        public string fileName;
-
+        #region Variables
+        private string m_fileName;
+        private int m_height;
+        private int m_width;
+        private int[,] m_red;
+        private int[,] m_green;
+        private int[,] m_blue;
+        #endregion
 
         public Image(int _width, int _height, string _fileName)
         {
-            height = _height;
-            width = _width;
-            fileName = _fileName + ".ppm";
-            r = new int[width, height];
-            g = new int[width, height];
-            b = new int[width, height];
+            m_height = _height;
+            m_width = _width;
+            m_fileName = _fileName + ".ppm";
+            m_red = new int[m_width, m_height];
+            m_green = new int[m_width, m_height];
+            m_blue = new int[m_width, m_height];
 
-            for (int j = 0; j < height; j++)
-                for (int i = 0; i < width; i++)
+            for (int j = 0; j < m_height; j++)
+                for (int i = 0; i < m_width; i++)
                 {
-                    r[i, j] = 240;
-                    g[i, j] = 240;
-                    b[i, j] = 240;
+                    m_red[i, j] = 240;
+                    m_green[i, j] = 240;
+                    m_blue[i, j] = 240;
                 }
         }
 
@@ -67,26 +67,26 @@ namespace SyntheseImage
 
         public void SetPixel(int x, int y, float r, float g, float b)
         {
-            this.r[x, y] = Clamp((int)(r * 255), 0, 255);
-            this.g[x, y] = Clamp((int)(g * 255), 0, 255);
-            this.b[x, y] = Clamp((int)(b * 255), 0, 255);
+            this.m_red[x, y] = Clamp((int)(r * 255), 0, 255);
+            this.m_green[x, y] = Clamp((int)(g * 255), 0, 255);
+            this.m_blue[x, y] = Clamp((int)(b * 255), 0, 255);
         }
 
-        public void WritePPM(int i)
+        public void WritePPM()
         {
             //Use a streamwriter to write the text part of the encoding.
 
-            var writer = new StreamWriter(i + "_" + fileName);
+            var writer = new StreamWriter(m_fileName);
             writer.Write("P3" + "\n");
-            writer.Write(width + " " + height + "\n");
+            writer.Write(m_width + " " + m_height + "\n");
             writer.Write("255" + "\n");
 
-            for (int y = 0; y < height; y++)
+            for (int y = 0; y < m_height; y++)
             {
                 string line = "";
-                for (int x = 0; x < width; x++)
+                for (int x = 0; x < m_width; x++)
                 {
-                    line += r[x, y] + " " + g[x, y] + " " + b[x, y] + " ";
+                    line += m_red[x, y] + " " + m_green[x, y] + " " + m_blue[x, y] + " ";
 
                 }
                 writer.WriteLine(line);
@@ -97,13 +97,13 @@ namespace SyntheseImage
 
         public Bitmap WriteBMP()
         {
-            // Create a Bitmap object from a file.
-            Bitmap myBitmap = new Bitmap(width, height, PixelFormat.Format24bppRgb);
-            for (int y = 0; y < height; y++)
+            // Create a Bitmap object
+            Bitmap myBitmap = new Bitmap(m_width, m_height, PixelFormat.Format24bppRgb);
+            for (int y = 0; y < m_height; y++)
             {
-                for (int x = 0; x < width; x++)
+                for (int x = 0; x < m_width; x++)
                 {
-                    Color col = Color.FromArgb(r[x, y], g[x, y], b[x, y]);
+                    Color col = Color.FromArgb(m_red[x, y], m_green[x, y], m_blue[x, y]);
                     myBitmap.SetPixel(x, y, col);
                 }
             }
